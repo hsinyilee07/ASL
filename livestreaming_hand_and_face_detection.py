@@ -48,6 +48,9 @@ HAND_CONNECTIONS = [
     (13, 17), (17, 18), (18, 19), (19, 20),
     (0, 17),
 ]
+
+FACE_CONNECTIONS = mp.tasks.vision.FaceLandmarksConnections   
+
 def draw_hand_landmarks_on_frame(frame, detection_result):
     if not detection_result or not detection_result.hand_landmarks:
         return frame
@@ -77,10 +80,14 @@ def draw_face_landmarks_on_frame(frame, detection_result):
     for face_landmarks in detection_result.face_landmarks:
         # 1. Convert normalized (0.0 - 1.0) coordinates to pixel coordinates
         pixel_points = [(int(lm.x * width), int(lm.y * height)) for lm in face_landmarks]
+    
+        # 2. Draw the skeleton lines connecting the joints
+        for connection in FACE_CONNECTIONS.FACE_LANDMARKS_TESSELATION:  #or use FACE_LANDMARKS_CONTOURS
+            cv2.line(frame, pixel_points[connection.start], pixel_points[connection.end], (0, 255, 0), 2)
 
-        # 2. Draw a circle on each of the face landmarks
+        # 3. Draw a circle on each of the face landmarks
         for px, py in pixel_points:
-            cv2.circle(frame, (px, py), 5, (0, 0, 255), -1)
+            cv2.circle(frame, (px, py), 3, (0, 0, 255), -1)
 
     return frame
 
