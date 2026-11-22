@@ -30,7 +30,7 @@ hand_options = HandLandmarkerOptions(
     base_options=BaseOptions(model_asset_path="./landmarker_weights/hand_landmarker.task"),  #where the weights of the model are stored
     running_mode=VisionRunningMode.LIVE_STREAM,
     num_hands=2,
-    result_callback=on_hand_result,
+    result_callback=on_hand_result,  #called when the model has a result for a frame
 )
 face_options = FaceLandmarkerOptions(
     base_options=BaseOptions(model_asset_path="./landmarker_weights/face_landmarker.task"),
@@ -82,7 +82,7 @@ def draw_face_landmarks_on_frame(frame, detection_result):
         pixel_points = [(int(lm.x * width), int(lm.y * height)) for lm in face_landmarks]
     
         # 2. Draw the skeleton lines connecting the joints
-        for connection in FACE_CONNECTIONS.FACE_LANDMARKS_TESSELATION:  #or use FACE_LANDMARKS_CONTOURS
+        for connection in FACE_CONNECTIONS.FACE_LANDMARKS_CONTOURS:  #FACE_LANDMARKS_TESSELATION, FACE_LANDMARKS_CONTOURS
             cv2.line(frame, pixel_points[connection.start], pixel_points[connection.end], (0, 255, 0), 2)
 
         # 3. Draw a circle on each of the face landmarks
