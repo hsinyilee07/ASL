@@ -67,8 +67,8 @@ with HandLandmarker.create_from_options(options) as landmarker:
         frame = cv2.flip(frame, 1)  # Flip the frame horizontally for a mirror effect   
         
         # 3. Convert OpenCV's BGR image to RGB for MediaPipe
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)   
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)   #open cv stores frame as numpy array, but mediapipe needs it in mp.Image format
 
         # 4. Generate a strictly increasing timestamp in milliseconds
         timestamp_ms = int(time.time() * 1000)
