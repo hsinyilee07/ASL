@@ -110,7 +110,7 @@ with HandLandmarker.create_from_options(hand_options) as hand_landmarker:  # cre
 
             if not success:
                 print("Ignoring empty camera frame.")
-                continue
+                break
 
             frame = cv2.flip(frame, 1)  # Flip the frame horizontally for a mirror effect   
             
