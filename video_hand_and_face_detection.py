@@ -1,6 +1,7 @@
 import time
 import cv2
 import mediapipe as mp
+import numpy as np
 
 #1. Load the necessary modules from MediaPipe
 BaseOptions = mp.tasks.BaseOptions
@@ -38,50 +39,77 @@ HAND_CONNECTIONS = [
 
 FACE_CONNECTIONS = mp.tasks.vision.FaceLandmarksConnections   
 
-def draw_hand_landmarks_on_frame(frame, detection_result):
-    if not detection_result or not detection_result.hand_landmarks:
-        return frame
+#Version1: with backgraound
+# def draw_landmarks_on_frame(frame, hand_result, face_result):
+    # height, width, _ = frame.shape
 
+    # if not hand_result and not face_result:
+    #     return frame
+    
+    # for hand_landmarks in hand_result.hand_landmarks:
+    #     # 1. Convert normalized (0.0 - 1.0) coordinates to pixel coordinates
+    #     pixel_points = [(int(lm.x * width), int(lm.y * height)) for lm in hand_landmarks]
+
+    #     # 2. Draw the skeleton lines connecting the joints
+    #     for start_idx, end_idx in HAND_CONNECTIONS:
+    #         cv2.line(frame, pixel_points[start_idx], pixel_points[end_idx], (0, 255, 0), 5)
+
+    #     # 3. Draw a circle on each of the 21 landmarks
+    #     for px, py in pixel_points:
+    #         cv2.circle(frame, (px, py), 5, (0, 0, 255), -1)
+    
+    # for face_landmarks in face_result.face_landmarks:
+    #     # 1. Convert normalized (0.0 - 1.0) coordinates to pixel coordinates
+    #     pixel_points = [(int(lm.x * width), int(lm.y * height)) for lm in face_landmarks]
+
+    #     # 2. Draw the skeleton lines connecting the joints
+    #     for connection in FACE_CONNECTIONS.FACE_LANDMARKS_TESSELATION:  
+    #         cv2.line(frame, pixel_points[connection.start], pixel_points[connection.end], (180, 180, 180), 1)
+    #     for connection in FACE_CONNECTIONS.FACE_LANDMARKS_CONTOURS:  
+    #         cv2.line(frame, pixel_points[connection.start], pixel_points[connection.end], (255, 255, 0), 5)
+
+    #     # 3. Draw a circle on each of the face landmarks
+    #     # for px, py in pixel_points:
+    #     #     cv2.circle(frame, (px, py), 3, (0, 0, 255), -1)
+            
+    # return frame   
+
+#Version2: black canvas background
+def draw_landmarks_on_frame(frame, hand_result, face_result):
     height, width, _ = frame.shape
+    
+    canvas = np.zeros_like(frame)  
 
-    for hand_landmarks in detection_result.hand_landmarks:
+    if not hand_result and not face_result:
+        return canvas
+
+    for hand_landmarks in hand_result.hand_landmarks:
         # 1. Convert normalized (0.0 - 1.0) coordinates to pixel coordinates
         pixel_points = [(int(lm.x * width), int(lm.y * height)) for lm in hand_landmarks]
 
         # 2. Draw the skeleton lines connecting the joints
         for start_idx, end_idx in HAND_CONNECTIONS:
-            cv2.line(frame, pixel_points[start_idx], pixel_points[end_idx], (0, 255, 0), 2)
+            cv2.line(canvas, pixel_points[start_idx], pixel_points[end_idx], (0, 255, 0), 5)
 
         # 3. Draw a circle on each of the 21 landmarks
         for px, py in pixel_points:
-            cv2.circle(frame, (px, py), 3, (0, 0, 255), -1)
+            cv2.circle(canvas, (px, py), 5, (0, 0, 255), -1)
 
-    return frame
-
-def draw_face_landmarks_on_frame(frame, detection_result):
-    if not detection_result or not detection_result.face_landmarks:
-        return frame
-
-    height, width, _ = frame.shape
-
-    for face_landmarks in detection_result.face_landmarks:
+    for face_landmarks in face_result.face_landmarks:
         # 1. Convert normalized (0.0 - 1.0) coordinates to pixel coordinates
         pixel_points = [(int(lm.x * width), int(lm.y * height)) for lm in face_landmarks]
-    
+
         # 2. Draw the skeleton lines connecting the joints
-        for connection in FACE_CONNECTIONS.FACE_LANDMARKS_CONTOURS:  #FACE_LANDMARKS_TESSELATION, FACE_LANDMARKS_CONTOURS
-            cv2.line(frame, pixel_points[connection.start], pixel_points[connection.end], (0, 255, 0), 2)
+        for connection in FACE_CONNECTIONS.FACE_LANDMARKS_TESSELATION:  
+            cv2.line(canvas, pixel_points[connection.start], pixel_points[connection.end], (180, 180, 180), 1)
+        for connection in FACE_CONNECTIONS.FACE_LANDMARKS_CONTOURS:  
+            cv2.line(canvas, pixel_points[connection.start], pixel_points[connection.end], (255, 255, 0), 5)
 
         # 3. Draw a circle on each of the face landmarks
-        for px, py in pixel_points:
-            cv2.circle(frame, (px, py), 3, (0, 0, 255), -1)
-
-    return frame
-
-def draw_landmarks_on_frame(frame, hand_result, face_result):
-    frame = draw_hand_landmarks_on_frame(frame, hand_result)
-    frame = draw_face_landmarks_on_frame(frame, face_result)
-    return frame   
+        # for px, py in pixel_points:
+        #     cv2.circle(canvas, (px, py), 3, (0, 0, 255), -1)
+        
+    return canvas
 
 
 #4. Main Loop
